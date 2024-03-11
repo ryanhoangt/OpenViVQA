@@ -11,3 +11,6 @@ examine*
 statistic.ipynb
 
 *.zip
+
+# MacOS
+.DS_Store
