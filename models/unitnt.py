@@ -1,21 +1,28 @@
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import math
-
+from builders.vision_embedding_builder import build_vision_embedding
+from utils.instance import Instance
 
 class UniTNT(nn.Module):
 
-    def __init__(self):
+    def __init__(self, config):
         super().__init__()
 
+        self.device = torch.device(config.DEVICE)
+
+        self.vision_encoder = build_vision_embedding(config.VISION_EMBEDDING)
+
         # TODO:
 
-    def forward(self):
-        # TODO:
+    def forward(self, inputs: Instance):
+        features = inputs.grid_features
 
-        pass
+        vision_features, vision_padding_mask = self.vision_encoder(features)
+
+        # TODO:
 
 class CausalSelfAttention(nn.Module):
 

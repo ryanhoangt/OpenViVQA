@@ -1,1 +1,11 @@
-# TODO:
+TASK: OcrOpenEndedTask
+
+MODEL:
+  NAME: unitnt
+  DEVICE: cuda
+  VISION_EMBEDDING:
+    PRETRAINED_NAME: Salesforce/blip-image-captioning-base
+    DEVICE: cuda
+    D_PRETRAINED_FEATURE: 512
+    D_MODEL: 512
+    DROPOUT: .1
