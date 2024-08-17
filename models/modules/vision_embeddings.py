@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from transformers import ViTFeatureExtractor, ViTModel
+from transformers import ViTFeatureExtractor, ViTModel, AutoProcessor, BlipModel
 from PIL import Image
 from typing import List
 
@@ -103,6 +103,34 @@ class ViTEmbedding(nn.Module):
     def forward(self, images: List[Image.Image]):
         inputs = self.feature_extractor(images, return_tensors="pt").to(self.device)
         features = self.backbone(**inputs).last_hidden_state
+        padding_mask = generate_padding_mask(features, padding_idx=0)
+
+        out = self.proj(features)
+        out = self.dropout(self.gelu(out))
+        
+        return out, padding_mask
+
+@META_VISION_EMBEDDING.register()
+class BlipEmbedding(nn.Module):
+    def __init__(self, config):
+        super().__init__()
+
+        self.device = torch.device(config.DEVICE)
+
+        self.model = BlipModel.from_pretrained(config.PRETRAINED_NAME)
+        self.processor = AutoProcessor.from_pretrained(config.PRETRAINED_NAME)
+
+        # freeze all parameters of pretrained model
+        for param in self.feature_extractor.parameters():
+            param.requires_grad = False
+
+        self.proj = nn.Linear(config.D_PRETRAINED_FEATURE, config.D_MODEL)
+        self.gelu = nn.GELU()
+        self.dropout = nn.Dropout(config.DROPOUT)
+
+    def forward(self, images: List[Image.Image]):
+        inputs = self.processor(images, return_tensors="pt").to(self.device)
+        features = self.model.get_image_features(**inputs)
         padding_mask = generate_padding_mask(features, padding_idx=0)
 
         out = self.proj(features)

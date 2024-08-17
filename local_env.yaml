@@ -1,0 +1,16 @@
+name: local_openvivqa
+channels:
+  - pytorch
+  - defaults
+dependencies:
+  - python=3.11
+  - pytorch
+  - numpy
+  - tqdm
+  - tabulate
+  - torchvision
+  - yacs
+  - pip
+  - pip:
+      - pytorch_transformers
+      - transformers
